@@ -6,6 +6,8 @@ using UnityEngine.SceneManagement;
 public class Gamemanager : MonoBehaviour
 {
     [SerializeField]
+    private Text textHighScore= null;
+    [SerializeField]
     private Text textLife = null;
     [SerializeField]
     private Text textScore = null;
@@ -17,17 +19,24 @@ public class Gamemanager : MonoBehaviour
 
     public Vector2 MaxPosition { get; private set;} //해킹 방지, 여기에서만 변경 가능
     private long score = 0;
+    private long highscore = 0;
 
-    void Start()
+    private void  Start()
     
     {
         MinPosition = new Vector2(-7f, -12f);//f쓰는 이유는 float이기 때문 안쓰면 오류남
         MaxPosition = new Vector2(7f, 12f);
+        highscore = PlayerPrefs.GetInt("Highscore", 500); //간단한 변수 하나 저장(여기선 highscore)
         StartCoroutine(SpawnCroissant());
     }
     public void AddScore(long addScore)//밖에서 접근하지만 변수는 건들지 못함 (변수를 감싼다)
     {
         score += addScore;
+        if( score > highscore )
+        {
+            highscore = score;
+            PlayerPrefs.SetInt("Highscore", (int)highscore);
+        }
         UpdateUI();
     }
 
@@ -35,6 +44,8 @@ public class Gamemanager : MonoBehaviour
     public void UpdateUI()
     {
       textScore.text = string.Format("score\n{0}", score);//score.형은 int형 string을 써야지 문자가 출력이 됨 
+      textHighScore.text = string.Format("Highscore\n{0}", highscore);
+        textLife.text = string.Format("Life : {0}", life); 
     }
 
     public void UpdateDead()
@@ -65,6 +76,7 @@ public class Gamemanager : MonoBehaviour
             
             randomX = Random.Range(-7f, 7f);
             spawnDelay = Random.Range(2f, 5f);
+            
             for (int i = 0; i < 6; i++)
             {
                 Instantiate(enemyCroissantPrefab, new Vector2(randomX, 20f), Quaternion.identity);
